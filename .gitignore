@@ -1,0 +1,22 @@
+# ---- python ----
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# ---- what the bridge writes beside itself when it runs ----
+# The bridge logs its boot and its live status next to its own DLL, so a run
+# leaves these in bridges/native/.  They are diagnostics, not sources.
+bridges/native/lhai_bridge.boot.txt
+bridges/native/lhai_bridge.status.json
+
+# ---- what the native build leaves behind ----
+bridges/native/*.pdb
+bridges/native/*.lib
+bridges/native/*.exp

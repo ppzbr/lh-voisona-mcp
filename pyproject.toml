@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "lh-voisona-mcp"
+version = "0.1.0"
+description = "An in-process MCP bridge into a running VoiSona, and the client that drives it"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "ppzbr" }]
+
+# The client is deliberately dependency-free at import time: the injection path
+# (lhai/live/inject.py, win32.py) is ctypes only, so the bridge is attachable on
+# a machine that has VoiSona and nothing else.
+dependencies = []
+
+[project.optional-dependencies]
+# The MCP server, and the COM/UIA glue in lhai/live.
+mcp = [
+    "mcp>=2",
+    "comtypes>=1.4",
+]
+# Only the named-pipe agent channel in lhai/live/agent.py needs pywin32; the
+# VoiSona bridge is served over loopback HTTP and does not import it.
+agent = [
+    "pywin32>=306",
+]
+
+[project.scripts]
+lhai-mcp = "lhai.mcp.server:main"
+
+[tool.setuptools.packages.find]
+include = ["lhai*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-q"
