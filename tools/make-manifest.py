@@ -20,7 +20,20 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[1]
 MANIFEST = "MANIFEST.txt"
 
-SKIP_DIRS = {".git", "__pycache__", ".pytest_cache", ".venv", "venv", "build", ".mypy_cache", ".ruff_cache"}
+# `bin` and `obj` are .NET build output: they never appear in the Python
+# repositories, and listing them here keeps this file identical in all of them.
+SKIP_DIRS = {
+    ".git",
+    "__pycache__",
+    ".pytest_cache",
+    ".venv",
+    "venv",
+    "build",
+    "bin",
+    "obj",
+    ".mypy_cache",
+    ".ruff_cache",
+}
 # `pip install -e .` (Step 0 of prompt.md) writes an egg-info directory into the
 # project root.  It is build output, not part of the repository, and it must not
 # make the manifest look incomplete.
@@ -40,7 +53,7 @@ SKIP_NAMES = {
 }
 
 HEADER = (
-    "# lh-cevio-mcp - sha256 of every file in this repository\n"
+    "# sha256 of every file in this repository\n"
     "# MANIFEST.txt itself is not listed.  Regenerate with:\n"
     "#   python tools/make-manifest.py\n"
     "# Verify by hand with:\n"

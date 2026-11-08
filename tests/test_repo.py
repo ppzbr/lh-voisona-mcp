@@ -52,6 +52,10 @@ PROMPT_PATHS = [
     "lhai/mcp/server.py",
 ]
 
+# Paths prompt.md names that its own steps produce (build output).  They must not be
+# here, and the test below proves they are not.
+GENERATED: list[str] = []
+
 # Every repository path in prompt.md, in either separator style and wherever it
 # appears - prose or code block.  Requiring an extension keeps bare mentions of the
 # directories (`lhai/`, `docs/`) and non-paths (`tools/list`) out of the check.
@@ -188,11 +192,21 @@ def test_the_files_the_prompt_names_are_present() -> None:
 
 def test_every_path_prompt_md_mentions_exists() -> None:
     """The prompt is pasted into an agent that has never seen this repository, so
-    every path it names has to be a path in it."""
+    every path it names must either be here, or be something its own steps build."""
     text = (REPO / "prompt.md").read_text(encoding="utf-8")
     missing = []
     for match in PROMPT_PATH_RE.finditer(text):
         candidate = match.group(0).replace("\\", "/").rstrip(".,;:)")
-        if not (REPO / candidate).exists():
-            missing.append(candidate)
+        if (REPO / candidate).exists():
+            continue
+        if any(candidate.startswith(prefix) for prefix in GENERATED):
+            continue
+        missing.append(candidate)
     assert missing == [], f"prompt.md names paths that are not here: {sorted(set(missing))}"
+
+
+def test_the_paths_the_prompt_builds_were_not_shipped() -> None:
+    """The other half of that rule: what the prompt's own steps produce is build
+    output, and committing it would make the tree disagree with its instructions."""
+    unwanted = [prefix for prefix in GENERATED if (REPO / prefix).exists()]
+    assert unwanted == [], f"build output is committed here: {unwanted}"
