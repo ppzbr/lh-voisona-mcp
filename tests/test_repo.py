@@ -58,9 +58,10 @@ GENERATED: list[str] = []
 
 # Every repository path in prompt.md, in either separator style and wherever it
 # appears - prose or code block.  Requiring an extension keeps bare mentions of the
-# directories (`lhai/`, `docs/`) and non-paths (`tools/list`) out of the check.
+# directories (`lhai/`, `docs/`) and non-paths (`tools/list`) out of the check, and
+# the lookbehind keeps a path inside another one out of it.
 PROMPT_PATH_RE = re.compile(
-    r"(?:bridges|lhai|tests|docs|tools|VocalPatch|xstudio)[\\/][\w./\\-]*\.\w+"
+    r"(?<![\w\\/.-])(?:bridges|lhai|tests|docs|tools|VocalPatch|xstudio)[\\/][\w./\\-]*\.\w+"
 )
 
 SKIP_DIRS = {
@@ -70,6 +71,8 @@ SKIP_DIRS = {
     ".venv",
     "venv",
     "build",
+    "bin",
+    "obj",
     ".mypy_cache",
     ".ruff_cache",
 }
