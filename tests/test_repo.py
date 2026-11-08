@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import hashlib
 import re
+from fnmatch import fnmatchcase
 from pathlib import Path
 
 import pytest
@@ -91,6 +92,16 @@ SKIP_NAMES = {
     "lhai_bridge.status.json",
 }
 
+# Patterns this repository's own .gitignore excludes and the manifest must too: the
+# hand-built helper executables (their sources are committed, the exes are not), and
+# the copies a repackage parks while an editor holds a file open.  In fnmatch `*`
+# crosses `/`, which is what makes these readable as one-liners.
+SKIP_GLOBS = (
+    "*/load_host_*.exe",
+    "*/hotkey_host.exe",
+    "*/vocalpatch.ini",
+    "*.locked-*",
+)
 
 # --------------------------------------------------------------------------- #
 # reading the tree
@@ -108,6 +119,8 @@ def _tracked() -> set[str]:
         if any(part in SKIP_DIRS or part.endswith(SKIP_ENDINGS) for part in rel.parts):
             continue
         if path.name.endswith(SKIP_SUFFIXES) or path.name in SKIP_NAMES:
+            continue
+        if any(fnmatchcase(rel.as_posix(), pattern) for pattern in SKIP_GLOBS):
             continue
         out.add(rel.as_posix())
     return out
